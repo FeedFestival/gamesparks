@@ -7,60 +7,42 @@ using System.Configuration;
 
 public class PhpController : MonoBehaviour
 {
-    private const string LocalUrl = "http://localhost:8080/GameCrib.Service";
-    private const string OnlineUrl = "http://gamescrypt.com/GameCrib.Service";
-
-    private string _loginUrl;
+    private const string LocalUrl = "http://localhost:8080/FFS/backend";
+    private const string UnityInitGame = LocalUrl + "/Session_UnityInitGame.php";
 
     private readonly Dictionary<string, string> _postHeader = new Dictionary<string, string> { { "Content-Type", "text/json" } };
 
-    public void Init(bool offline)
+    private Main _main;
+
+    public void Init(Main main)
     {
-        if (offline)
-        {
-            _loginUrl = LocalUrl + "/SessionService/AttemptLogin.php";
-        }
-        else
-        {
-            _loginUrl = OnlineUrl + "/SessionService/AttemptLogin.php";
-        }
+        _main = main;
     }
 
-    // The login callback
-    public delegate void OnPhpAuthentication(bool success, string userId = null);
-    private OnPhpAuthentication _onPhpAuthentication;
-    
-    IEnumerator LoginGame(string username, string password)
+    IEnumerator InitGame(string gameSessionId)
     {
-        WWWForm form = new WWWForm();
-        form.AddField("username", username);
-        form.AddField("password", password);
-        
-        var response = new WWW(_loginUrl, form.data);
+        var jsonString = "{ \"gameSessionId\" : \"" + gameSessionId + "\" }";
+        byte[] encodedMessage = Encoding.ASCII.GetBytes(jsonString);
 
-        yield return response;
-        
-        DebugTool.Instance().SetMessage(new DebugMessage(response.text, DebugMessageType.Message));
+        var gameData = new WWW(UnityInitGame, encodedMessage, _postHeader);
+        yield return gameData;
 
-        JsonData data = JsonMapper.ToObject(response.text);
+        JsonData data = JsonMapper.ToObject(gameData.text);
 
         if (data.Keys.Contains("Error"))
         {
             Debug.LogError(data["Error"]);
-            _onPhpAuthentication(false);
+            _main.Game.HandshakeSessionCallback(false);
         }
         else
         {
-            _onPhpAuthentication(true, data["user_id"].ToString());
+            Debug.Log(data["message"]);
+            _main.Game.HandshakeSessionCallback(true);
         }
     }
 
-    public void Login(string username, string password, OnPhpAuthentication onPhpAuthentication)
+    public void HandshakeSession(string gameSessionId)
     {
-        DebugTool.Instance().SetMessage(new DebugMessage("Sending credentials to gameScrypt. [" + username + "]", DebugMessageType.Message));
-
-        _onPhpAuthentication = onPhpAuthentication;
-
-        StartCoroutine(LoginGame(username, password));
+        StartCoroutine(InitGame(gameSessionId));
     }
 }

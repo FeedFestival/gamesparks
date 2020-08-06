@@ -45,35 +45,5 @@ namespace Assets.Scripts.Utils
 
             return success ? numb : 0;
         }
-
-        public static long GetLongDataValue(string data)
-        {
-            long numb;
-            var success = long.TryParse(data, out numb);
-
-            return success ? numb : 0;
-        }
-
-        public static float GetPercent(float value, float percent)
-        {
-            return (value / 100f) * percent;
-        }
-
-        public static float GetValuePercent(float value, float maxValue)
-        {
-            return (value * 100f) / maxValue;
-        }
-
-        public static float XPercent(float percent)
-        {
-            return (ScreenWidth / 100f) * percent;
-        }
-        public static float YPercent(float percent)
-        {
-            return (ScreenHeight / 100f) * percent;
-        }
-
-        public static int ScreenWidth;
-        public static int ScreenHeight;
     }
 }

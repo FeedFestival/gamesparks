@@ -1,89 +1,96 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
+using System.Collections;
 using Assets.Scripts.Main;
+using GameSparks;
+using GameSparks.Api;
 using GameSparks.Api.Messages;
+using GameSparks.Api.Requests;
 using GameSparks.Api.Responses;
+using GameSparks.Core;
 
 public class GameSparksController : MonoBehaviour
 {
-    private static GameSparksController _instance = null;
-    public static GameSparksController Instance()
+    private Main _main;
+
+    private User _user = new User
     {
-        if (_instance != null)
+        UserName = "admin",
+        Password = "fire4test"
+    };
+
+    public void RegisterPlayer()
+    {
+        new RegistrationRequest()
+            .SetDisplayName(_user.UserName)
+            .SetUserName(_user.UserName)
+            .SetPassword(_user.Password)
+            .Send(response =>
+            {
+                if (response.HasErrors)
+                    Debug.Log("Error registering player.");
+                else
+                    Debug.Log("Player registered.");
+            }
+            );
+    }
+
+    public void Login()
+    {
+        new AuthenticationRequest()
+            .SetUserName(_user.UserName)
+            .SetPassword(_user.Password)
+            .Send(response =>
         {
-            return _instance; // return the singleton if the instance has been setup
-        }
-        else
-        { // otherwise return an error
-            DebugTool.Instance().SetMessage(new DebugMessage("GSM| GameSparksManager Not Initialized...", DebugMessageType.Error));
-        }
-        return null;
+            if (response.HasErrors)
+            {
+                // Probably hes not registered.
+                RegisterPlayer();
+            }
+            else
+            {
+                Debug.Log("Is logged in");
+                // now we can init Main.Game.Init();
+
+                InitPlayerSession();
+            }
+        });
     }
 
-    void Awake()
+    public void InitPlayerSession()
     {
-        _instance = this; // if not, give it a reference to this class...
-        DontDestroyOnLoad(this.gameObject); // and make this object persistent as we load new scenes
+        string json = @"
+          {
+            ""ffsUserId"" : 1
+          }
+        ";
 
-        if (GameSparksOffline)
+        new LogEventRequest()
+            .SetEventKey("InitPlayerSession")
+            .SetEventAttribute("playerSettings", json)
+            .Send(response =>
+            {
+                if (!response.HasErrors)
+                {
+                    Debug.Log("Player Saved To GameSparks...");
+                }
+                else
+                {
+                    Debug.Log("Error Saving Player Data...");
+                }
+            });
+    }
+
+    public void Init(Main main)
+    {
+        _main = main;
+
+        GS.GameSparksAvailable += (available) =>
         {
-            gameObject.AddComponent<GameSparksOfflineFactory>();
-            _gameSparksFactory = GetComponent<GameSparksOfflineFactory>();
-        }
-        else
-        {
-            gameObject.AddComponent<GameSparksOnlineFactory>();
-            _gameSparksFactory = GetComponent<GameSparksOnlineFactory>();
-        }
-    }
-
-    public bool GameSparksOffline;
-    public bool PhpOffline;
-
-    private IGameSparksFactory _gameSparksFactory;
-
-    public IGameSparksFactory GetGameSparksFactory()
-    {
-        return _gameSparksFactory;
-    }
-
-    /*------------------------------------------------------------------------------------------------------------------------------------------------------
-    ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-
-    //  DELEGATES
-
-
-
-    public delegate void GameSparksStatusCallback(bool isAvailable);
-
-    public delegate void AuthCallback(AuthenticationResponse _authresp2);
-    public delegate void RegCallback(RegistrationResponse _authResp);
-    public delegate void ErrorCallback();
-
-    public delegate void NoMatchCallback();
-    public delegate void MatchCallback(MatchFoundMessage mfMsg, string msg);
-
-    /*------------------------------------------------------------------------------------------------------------------------------------------------------
-    ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-    public void WhereAmI()
-    {
-        _gameSparksFactory.WhereAmI();
-    }
-
-    public void Init(GameSparksStatusCallback gameSparksStatusCallback)
-    {
-        _gameSparksFactory.Init(gameSparksStatusCallback);
-    }
-
-    public void AuthenticateUser(string userName, string password, RegCallback regcallback, AuthCallback authcallback, ErrorCallback errorCallback)
-    {
-        _gameSparksFactory.AuthenticateUser(userName, password, regcallback, authcallback, errorCallback);
-    }
-
-    public void FindPlayers(NoMatchCallback noMatchCallback, MatchCallback matchCallback)
-    {
-        _gameSparksFactory.FindPlayers(noMatchCallback, matchCallback);
+            if (available)
+            {
+                // Check if player exists by trying to authentificate.
+                Login();
+            }
+        };
     }
 }

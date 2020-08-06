@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -8,62 +7,76 @@ using UnityEngine.UI;
 
 public class CanvasController : MonoBehaviour
 {
-    private SceneManager _sceneManager;
+    private Main _main;
+    
+    private div _body;
 
-    public void Init(SceneManager sceneManager)
+    //public OrderedDictionary divs;
+
+    private int index = 0;
+
+    public void Init(Main main)
     {
-        _sceneManager = sceneManager;
+        _main = main;
 
-        FillScope();
-
-        StartCoroutine(SetupStyles());
+        GetBasicElements();
     }
 
-    private void FillScope()
+    public int InspectorScreenWidth;
+    public int InspectorScreenHeight;
+    public string InspectorScreenName;
+
+    public void Build(bool inspector)
     {
-        _sceneManager.Game.scope = new Dictionary<string, GameObject>();
+        if (inspector)
+            GetBasicElements();
 
-        // 1.   -> fill scope
+        style_utils.buildDiv(_body);
+    }
 
-        Transform[] allChildren = GetComponentsInChildren<Transform>(true);
-        foreach (Transform child in allChildren)
+    public void GetBasicElements()
+    {
+        //divs = new OrderedDictionary();
+
+        _body = new div
         {
-            if (child.gameObject.name.Contains("{"))
-            {
-                var s = child.gameObject.name.Split('{', '}');
-                try
-                {
-                    _sceneManager.Game.scope.Add(s[1], child.gameObject);
-                }
-                catch (Exception exception)
-                {
-                    Debug.LogError("scope[\"" + child.gameObject.name + "\"] - Allready exists. \n" + exception);
-                    throw;
-                }
-            }
+            Id = index.ToString(),
+            elementName = transform.gameObject.name,
+            children = new List<div>(),
+            type = divType.body,
+            element = transform.GetComponent<RectTransform>()
+        };
+        style_utils.SetAnchor(AnchorType.TopLeft, _body.element);
+        _body.element.localPosition = new Vector3(-(_body.element.sizeDelta.x / 2), (_body.element.sizeDelta.y / 2), 0);
+
+        getDivs(transform, _body);
+    }
+
+    private void getDivs(Transform parent, div div)
+    {
+        var i = 0;
+        foreach (Transform child in parent)
+        {
+            var s = child.GetComponent<style>();
+            if (s == null)
+                continue;
+            
+            s.Refresh();
+            s.Div.childIndex = i;
+            s.Div.parent = div;
+
+            getDivs(child, s.Div);
+            
+            div.children.Add(s.Div);
+
+            i++;
+
+            //divs.Add(s.Div.Id, s.Div);
         }
     }
 
-    IEnumerator SetupStyles()
+    public div FindDiv(string name)
     {
-        yield return new WaitForSeconds(0.5f);
-
-        Transform[] allChildren = GetComponentsInChildren<Transform>(true);
-        foreach (Transform child in allChildren)
-        {
-            var style = child.gameObject.GetComponent<style>();
-            if (style != null)
-                style.Setup();
-        }
-    }
-
-    public Dictionary<string, GameObject> InitViews(Dictionary<string, GameObject> scope)
-    {
-        scope["MenuView"].SetActive(false);
-        scope["MainMenuView"].SetActive(false);
-        scope["LoginContainer"].SetActive(false);
-        scope["FriendListContainer"].SetActive(false);
-
-        return scope;
+        return new div();
     }
 }

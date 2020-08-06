@@ -1,85 +1,39 @@
-﻿using System.Collections.Generic;
-using Assets.Scripts.Main;
-using GameSparks.Api.Messages;
-using GameSparks.Api.Responses;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class Game : MonoBehaviour
 {
-    [HideInInspector]
-    public Dictionary<string, GameObject> scope;
+    public Main Main;
 
-    private string _previousView;
-    private string _nextView;
+    public Text Text;
     
-    // GameStarts.
-    void Start()
+    void Awake()
     {
-        SceneManager.Instance().Init(this);
-        Init();
+        Main.Init(this);
+
+        Text.text = "Hello there.";
+
+        // This is a script that exists in the game.html
+        // this script when is called - tells angular that unity is ready to recieve the game session id.
+        Application.ExternalCall("setGameReady");
+
+        // TODO: On the loader we should have a message : Seting up session, while we wait for javascript and php.
+
+
+        // TODO: this usually stays in SetSession
+        // wich is called from the browser Javascript/Angular
+        Main.PhpController.HandshakeSession("7618110C-58EC-43DC-95DB-5B4CFD0D40B6");
     }
 
-    private void Init()
+    public void HandshakeSessionCallback(bool success)
     {
-        scope = SceneManager.Instance().CanvasController.InitViews(scope);
-        
-        scope = SceneManager.Instance().LoginController.Init(scope, OnLobbyEnter);
-
-        InitButtonLogic();
-
-        StartApp();
-    }
-    /*------------------------------------------------------------------------------------------------------------------------------------------------------
-    ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-    
-    private void InitButtonLogic()
-    {
-        scope["DebugConsoleButton"].GetComponent<Button>().onClick.AddListener(
-            () =>
-            {
-                scope["DebugWindow"].SetActive(!scope["DebugWindow"].activeSelf);
-            }
-            );
-    }
-    
-    private void StartApp()
-    {
-        scope["MenuView"].SetActive(true);
-        scope["MainMenuView"].SetActive(true);
-        scope["LoginContainer"].SetActive(true);
-        /**/
-        scope["DebugWindow"].SetActive(true);
-        /**/
-        SceneManager.Instance().LoginController.DisableLoginForm(true);
-        /**/
-        GameSparksController.Instance().Init(GameSparksStatusCallback);
+        //if (success)
+            Main.GameSparksController.Init(Main);
     }
 
-    private void GameSparksStatusCallback(bool isAvailable)
+    public void SetSession(string sessionId)
     {
-        SceneManager.Instance().LoginController.DisableLoginForm(!isAvailable);     // -> If its available then don't disable it.
-    }
-    
-    private void OnLobbyEnter()
-    {
-        scope["LoginContainer"].SetActive(false);
-        scope["FriendListContainer"].SetActive(true);
-        /**/
-        
-        GameSparksController.Instance().FindPlayers(NoMatchFound, MatchFound);
-    }
-
-    private RtSessionInfo _tempRTSessionInfo;
-
-    private void MatchFound(MatchFoundMessage mfMsg, string msg)
-    {
-        _tempRTSessionInfo = new RtSessionInfo(mfMsg);
-        SceneManager.Instance().ChatController.Init(SceneManager.Instance(), _tempRTSessionInfo);
-    }
-
-    public void NoMatchFound()
-    {
-        scope["matchDetails"].GetComponent<Text>().text = "No Match Found...";
+        Text.text = sessionId;
+        //Main.PhpController.HandshakeSession(sessionId);
     }
 }
