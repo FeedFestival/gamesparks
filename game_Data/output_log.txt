@@ -1,0 +1,48 @@
+Initialize engine version: 5.6.1f1 (2860b30f0b54)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: NVIDIA GeForce GTX 650 (ID=0xfc6)
+    Vendor:   NVIDIA
+    VRAM:     994 MB
+    Driver:   21.21.13.7653
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\Projects\Spectre\game_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\Projects\Spectre\game_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\Projects\Spectre\game_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\Projects\Spectre\game_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: C:\Projects\Spectre\game_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading C:\Projects\Spectre\game_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: C:\Projects\Spectre\game_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading C:\Projects\Spectre\game_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+Platform assembly: C:\Projects\Spectre\game_Data\Managed\BouncyCastle_GameSparks.dll (this message is harmless)
+Loading C:\Projects\Spectre\game_Data\Managed\BouncyCastle_GameSparks.dll into Unity Child Domain
+Platform assembly: C:\Projects\Spectre\game_Data\Managed\GameSparks.Api.dll (this message is harmless)
+Loading C:\Projects\Spectre\game_Data\Managed\GameSparks.Api.dll into Unity Child Domain
+Platform assembly: C:\Projects\Spectre\game_Data\Managed\GameSparks.dll (this message is harmless)
+Loading C:\Projects\Spectre\game_Data\Managed\GameSparks.dll into Unity Child Domain
+Platform assembly: C:\Projects\Spectre\game_Data\Managed\GameSparksRT.dll (this message is harmless)
+Loading C:\Projects\Spectre\game_Data\Managed\GameSparksRT.dll into Unity Child Domain
+Platform assembly: C:\Projects\Spectre\game_Data\Managed\LitJson.dll (this message is harmless)
+Loading C:\Projects\Spectre\game_Data\Managed\LitJson.dll into Unity Child Domain
+- Completed reload, in  0.278 seconds
+Platform assembly: C:\Projects\Spectre\game_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: C:\Projects\Spectre\game_Data\Managed\System.dll (this message is harmless)
+desktop: 1280x1024 60Hz; virtual: 3200x1080 at 0,0
+<RI> Initializing input.
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 1.030369 ms
+IPv6 on!
+IPv6 on!
+Starting Session
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+salut
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Setting up 2 worker threads for Enlighten.
+  Thread -> id: 3688 -> priority: 1 
+  Thread -> id: 308 -> priority: 1 
